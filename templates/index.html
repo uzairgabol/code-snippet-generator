@@ -60,6 +60,7 @@
         margin-bottom: 10px;
         max-width: 70%;
         word-wrap: break-word;
+        white-space: pre-wrap; /* Preserve spaces and line breaks */
       }
 
       .bot-name {
@@ -98,17 +99,7 @@
   <body>
     <div class="container">
       <div class="chat-container">
-        <div class="chat-messages">
-          <div class="bot-message">
-            <span class="bot-name">Chatbot:</span> Hello! How can I assist you
-            today?
-          </div>
-          <div class="user-message">
-            <span class="user-name">User:</span> Hi there! I have a coding
-            problem.
-          </div>
-          <!-- Hard-coded messages for demonstration -->
-        </div>
+        <div class="chat-messages"></div>
         <div class="input-container">
           <input
             type="text"
@@ -134,10 +125,30 @@
           userInput +
           "</div>";
         chatMessages.insertAdjacentHTML("beforeend", userMessage);
-        // Send request to server here (will implement later)
-        // Receive response from server and append bot message to chatMessages
+        chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to the bottom
         document.getElementById("user-input").value = ""; // Clear input field after sending message
         document.getElementById("user-input").focus(); // Focus on input field after sending message
+
+        // Send request to server
+        fetch("/get_response", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ message: userInput }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            var botMessage =
+              '<div class="bot-message"><span class="bot-name">Chatbot:</span> ' +
+              data.message +
+              "</div>";
+            chatMessages.insertAdjacentHTML("beforeend", botMessage);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to the bottom
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
       }
     </script>
   </body>
